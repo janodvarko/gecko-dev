@@ -35,21 +35,21 @@ add_task(function* () {
   });
   yield wait;
 
-  let { attachment } = RequestsMenu.getItemAtIndex(0);
-  is(attachment.method, "POST", "The request has the right method");
-  is(attachment.url, requestUrl, "The request has the right URL");
+  let { data } = RequestsMenu.getItemAtIndex(0);
+  is(data.method, "POST", "The request has the right method");
+  is(data.url, requestUrl, "The request has the right URL");
 
-  for (let { name, value } of attachment.requestHeaders.headers) {
+  for (let { name, value } of data.requestHeaders.headers) {
     info(`Request header: ${name}: ${value}`);
   }
 
   function hasRequestHeader(name, value) {
-    let { headers } = attachment.requestHeaders;
+    let { headers } = data.requestHeaders;
     return headers.some(h => h.name === name && h.value === value);
   }
 
   function hasNotRequestHeader(name) {
-    let { headers } = attachment.requestHeaders;
+    let { headers } = data.requestHeaders;
     return headers.every(h => h.name !== name);
   }
 

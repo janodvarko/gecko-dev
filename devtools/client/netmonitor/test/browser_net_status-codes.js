@@ -207,7 +207,8 @@ add_task(function* () {
    */
   function chooseRequest(index) {
     let onTabUpdated = monitor.panelWin.once(EVENTS.TAB_UPDATED);
-    EventUtils.sendMouseEvent({ type: "mousedown" }, requestItems[index].target);
+    let target = getItemTarget(requestItems[index]);
+    EventUtils.sendMouseEvent({ type: "mousedown" }, target);
     return onTabUpdated;
   }
 });

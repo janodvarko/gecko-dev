@@ -52,9 +52,6 @@ XPCOMUtils.defineConstant(this, "Prefs", Prefs);
 XPCOMUtils.defineLazyModuleGetter(this, "Chart",
   "resource://devtools/client/shared/widgets/Chart.jsm");
 
-XPCOMUtils.defineLazyServiceGetter(this, "clipboardHelper",
-  "@mozilla.org/widget/clipboardhelper;1", "nsIClipboardHelper");
-
 Object.defineProperty(this, "NetworkHelper", {
   get: function () {
     return require("devtools/shared/webconsole/network-helper");
@@ -533,6 +530,7 @@ NetworkEventsHandler.prototype = {
   _onDocLoadingMarker: function (marker) {
     window.emit(EVENTS.TIMELINE_EVENT, marker);
     this._markers.push(marker);
+    NetMonitorView.RequestsMenu.addTimingMarker(marker);
   },
 
   /**
@@ -554,8 +552,7 @@ NetworkEventsHandler.prototype = {
     } = networkInfo;
 
     NetMonitorView.RequestsMenu.addRequest(
-      actor, startedDateTime, method, url, isXHR, cause, fromCache,
-        fromServiceWorker
+      actor, {startedDateTime, method, url, isXHR, cause, fromCache, fromServiceWorker}
     );
     window.emit(EVENTS.NETWORK_EVENT, actor);
   },

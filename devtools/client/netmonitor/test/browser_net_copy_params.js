@@ -65,7 +65,7 @@ add_task(function* () {
   return teardown(monitor);
 
   function testCopyUrlParamsHidden(hidden) {
-    RequestsMenu._onContextShowing();
+    RequestsMenu.onContextShowing();
     is(document.querySelector("#request-menu-context-copy-url-params").hidden, hidden,
       "The \"Copy URL Parameters\" context menu item should" + (hidden ? " " : " not ") +
         "be hidden.");
@@ -79,7 +79,7 @@ add_task(function* () {
   }
 
   function testCopyPostDataHidden(hidden) {
-    RequestsMenu._onContextShowing();
+    RequestsMenu.onContextShowing();
     is(document.querySelector("#request-menu-context-copy-post-data").hidden, hidden,
       "The \"Copy POST Data\" context menu item should" + (hidden ? " " : " not ") +
         "be hidden.");

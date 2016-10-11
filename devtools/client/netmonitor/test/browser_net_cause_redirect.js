@@ -27,11 +27,11 @@ add_task(function* () {
   yield wait;
 
   EXPECTED_REQUESTS.forEach(({status, hasStack}, i) => {
-    let { attachment } = RequestsMenu.getItemAtIndex(i);
+    let { data } = RequestsMenu.getItemAtIndex(i);
 
-    is(attachment.status, status, `Request #${i} has the expected status`);
+    is(data.status, status, `Request #${i} has the expected status`);
 
-    let { stacktrace } = attachment.cause;
+    let { stacktrace } = data.cause;
     let stackLen = stacktrace ? stacktrace.length : 0;
 
     if (hasStack) {

@@ -105,17 +105,17 @@ add_task(function* () {
 
     for (let header of headers) {
       if (header != target) {
-        is(header.hasAttribute("sorted"), false,
-          "The " + header.id + " header should not have a 'sorted' attribute.");
-        is(header.hasAttribute("tooltiptext"), false,
-          "The " + header.id + " header should not have a 'tooltiptext' attribute.");
+        ok(!header.hasAttribute("data-sorted"),
+          "The " + header.id + " header does not have a 'data-sorted' attribute.");
+        ok(!header.getAttribute("title"),
+          "The " + header.id + " header does not have a 'title' attribute.");
       } else {
-        is(header.getAttribute("sorted"), direction,
-          "The " + header.id + " header has an incorrect 'sorted' attribute.");
-        is(header.getAttribute("tooltiptext"), direction == "ascending"
+        is(header.getAttribute("data-sorted"), direction,
+          "The " + header.id + " header has a correct 'data-sorted' attribute.");
+        is(header.getAttribute("title"), direction == "ascending"
           ? L10N.getStr("networkMenu.sortedAsc")
           : L10N.getStr("networkMenu.sortedDesc"),
-          "The " + header.id + " has an incorrect 'tooltiptext' attribute.");
+          "The " + header.id + " header has a correct 'title' attribute.");
       }
     }
   }

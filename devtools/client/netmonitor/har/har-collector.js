@@ -201,7 +201,7 @@ HarCollector.prototype = {
 
     // Mimic the Net panel data structure
     this.items.push({
-      attachment: file
+      data: file
     });
   },
 

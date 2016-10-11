@@ -35,6 +35,8 @@ add_task(function* () {
   });
   yield wait;
 
+  $(".requests-menu-contents").focus();
+
   check(-1, false);
 
   EventUtils.sendKey("DOWN", window);

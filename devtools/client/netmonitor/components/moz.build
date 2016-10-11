@@ -4,5 +4,8 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 DevToolsModules(
-    'index.js',
+    'request-list-empty.js',
+    'request-list-header.js',
+    'request-list-item.js',
+    'request-list.js',
 )

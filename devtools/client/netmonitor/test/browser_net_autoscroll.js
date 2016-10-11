@@ -11,9 +11,8 @@ add_task(function* () {
 
   let { monitor } = yield initNetMonitor(INFINITE_GET_URL);
   let win = monitor.panelWin;
-  let topNode = win.document.getElementById("requests-menu-contents");
-  let requestsContainer = topNode.getElementsByTagName("scrollbox")[0];
-  ok(!!requestsContainer, "Container element exists as expected.");
+  let requestsContainer = win.document.getElementById("requests-menu-contents");
+  ok(requestsContainer, "Container element exists as expected.");
 
   // (1) Check that the scroll position is maintained at the bottom
   // when the requests overflow the vertical size of the container.

@@ -2,8 +2,7 @@
 
 const { getAbbreviatedMimeType,
         getUriNameWithQuery,
-        getUriHostPort,
-        loadCauseString } = require("./request-utils");
+        getUriHostPort } = require("./request-utils");
 
 /**
  * Predicates used when sorting items.
@@ -54,8 +53,8 @@ function domain(first, second) {
 }
 
 function cause(first, second) {
-  let firstCause = loadCauseString(first.cause.type);
-  let secondCause = loadCauseString(second.cause.type);
+  let firstCause = first.cause.type;
+  let secondCause = second.cause.type;
   if (firstCause == secondCause) {
     return first.startedMillis - second.startedMillis;
   }

@@ -39,13 +39,15 @@ add_task(function* () {
   RequestsMenu.cloneSelectedRequest();
   yield onPopulated;
 
-  testCustomForm(origItem.attachment);
+  testCustomForm(origItem.data);
 
   let customItem = RequestsMenu.selectedItem;
   testCustomItem(customItem, origItem);
 
   // edit the custom request
   yield editCustomForm();
+  // FIXME: reread the customItem, it's been replaced by a new object (immutable!)
+  customItem = RequestsMenu.selectedItem;
   testCustomItemChanged(customItem, origItem);
 
   // send the new request
@@ -54,30 +56,25 @@ add_task(function* () {
   yield wait;
 
   let sentItem = RequestsMenu.selectedItem;
-  testSentRequest(sentItem.attachment, origItem.attachment);
+  testSentRequest(sentItem.data, origItem.data);
 
   return teardown(monitor);
 
   function testCustomItem(item, orig) {
-    let method = item.target.querySelector(".requests-menu-method").value;
-    let origMethod = orig.target.querySelector(".requests-menu-method").value;
+    let method = item.data.method;
+    let origMethod = orig.data.method;
     is(method, origMethod, "menu item is showing the same method as original request");
 
-    let file = item.target.querySelector(".requests-menu-file").value;
-    let origFile = orig.target.querySelector(".requests-menu-file").value;
-    is(file, origFile, "menu item is showing the same file name as original request");
-
-    let domain = item.target.querySelector(".requests-menu-domain").value;
-    let origDomain = orig.target.querySelector(".requests-menu-domain").value;
-    is(domain, origDomain, "menu item is showing the same domain as original request");
+    let url = item.data.url;
+    let origUrl = orig.data.url;
+    is(url, origUrl, "menu item is showing the same URL as original request");
   }
 
   function testCustomItemChanged(item, orig) {
-    let file = item.target.querySelector(".requests-menu-file").value;
-    let expectedFile = orig.target.querySelector(".requests-menu-file").value +
-      "&" + ADD_QUERY;
+    let url = item.data.url;
+    let expectedUrl = orig.data.url + "&" + ADD_QUERY;
 
-    is(file, expectedFile, "menu item is updated to reflect url entered in form");
+    is(url, expectedUrl, "menu item is updated to reflect url entered in form");
   }
 
   /*

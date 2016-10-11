@@ -20,6 +20,7 @@ const {ToolSidebar} = require("devtools/client/framework/sidebar");
 const {testing: isTesting} = require("devtools/shared/flags");
 const {ViewHelpers, Heritage} = require("devtools/client/shared/widgets/view-helpers");
 const {PluralForm} = require("devtools/shared/plural-form");
+const Actions = require("./actions/index");
 const {Filters} = require("./filter-predicates");
 const {getFormDataSections,
        formDataURI,
@@ -242,7 +243,7 @@ var NetMonitorView = {
         // • The response content size and request total time are necessary for
         // populating the statistics view.
         // • The response mime type is used for categorization.
-        yield whenDataAvailable(requestsView.attachments, [
+        yield whenDataAvailable(requestsView.store, [
           "responseHeaders", "status", "contentSize", "mimeType", "totalTime"
         ]);
       } catch (ex) {
@@ -250,8 +251,9 @@ var NetMonitorView = {
         console.error(ex);
       }
 
-      statisticsView.createPrimedCacheChart(requestsView.items);
-      statisticsView.createEmptyCacheChart(requestsView.items);
+      const { requests } = requestsView.store.getState();
+      statisticsView.createPrimedCacheChart(requests);
+      statisticsView.createEmptyCacheChart(requests);
     });
   },
 
@@ -446,37 +448,41 @@ CustomRequestView.prototype = {
    */
   onUpdate: function (field) {
     let selectedItem = NetMonitorView.RequestsMenu.selectedItem;
+    let store = NetMonitorView.RequestsMenu.store;
     let value;
 
     switch (field) {
       case "method":
         value = $("#custom-method-value").value.trim();
-        selectedItem.attachment.method = value;
+        store.dispatch(Actions.updateRequest(selectedItem.id, { method: value }));
         break;
       case "url":
         value = $("#custom-url-value").value;
         this.updateCustomQuery(value);
-        selectedItem.attachment.url = value;
+        store.dispatch(Actions.updateRequest(selectedItem.id, { url: value }));
         break;
       case "query":
         let query = $("#custom-query-value").value;
         this.updateCustomUrl(query);
-        field = "url";
         value = $("#custom-url-value").value;
-        selectedItem.attachment.url = value;
+        store.dispatch(Actions.updateRequest(selectedItem.id, { url: value }));
         break;
       case "body":
         value = $("#custom-postdata-value").value;
-        selectedItem.attachment.requestPostData = { postData: { text: value } };
+        store.dispatch(Actions.updateRequest(selectedItem.id, {
+          requestPostData: {
+            postData: { text: value }
+          }
+        }));
         break;
       case "headers":
         let headersText = $("#custom-headers-value").value;
         value = parseHeadersText(headersText);
-        selectedItem.attachment.requestHeaders = { headers: value };
+        store.dispatch(Actions.updateRequest(selectedItem.id, {
+          requestHeaders: { headers: value }
+        }));
         break;
     }
-
-    NetMonitorView.RequestsMenu.updateMenuView(selectedItem, field, value);
   },
 
   /**
@@ -1519,7 +1525,7 @@ PerformanceStatisticsView.prototype = {
     }));
 
     for (let requestItem of items) {
-      let details = requestItem.attachment;
+      let details = requestItem.data;
       let type;
 
       if (Filters.html(details)) {
@@ -1661,11 +1667,8 @@ function responseIsFresh({ responseHeaders, status }) {
   }
 
   let list = responseHeaders.headers;
-  let cacheControl = list.filter(e => {
-    return e.name.toLowerCase() == "cache-control";
-  })[0];
-
-  let expires = list.filter(e => e.name.toLowerCase() == "expires")[0];
+  let cacheControl = list.find(e => e.name.toLowerCase() == "cache-control");
+  let expires = list.find(e => e.name.toLowerCase() == "expires");
 
   // Check the "Cache-Control" header for a maximum age value.
   if (cacheControl) {
@@ -1689,8 +1692,8 @@ function responseIsFresh({ responseHeaders, status }) {
 /**
  * Makes sure certain properties are available on all objects in a data store.
  *
- * @param array dataStore
- *        A list of objects for which to check the availability of properties.
+ * @param Store dataStore
+ *        A Redux store for which to check the availability of properties.
  * @param array mandatoryFields
  *        A list of strings representing properties of objects in dataStore.
  * @return object
@@ -1698,24 +1701,21 @@ function responseIsFresh({ responseHeaders, status }) {
  *         properties defined in mandatoryFields.
  */
 function whenDataAvailable(dataStore, mandatoryFields) {
-  let deferred = promise.defer();
+  return new Promise((resolve, reject) => {
+    let interval = setInterval(() => {
+      const { requests } = dataStore.getState();
+      if (requests.every(item => mandatoryFields.every(field => field in item.data))) {
+        clearInterval(interval);
+        clearTimeout(timer);
+        resolve();
+      }
+    }, WDA_DEFAULT_VERIFY_INTERVAL);
 
-  let interval = setInterval(() => {
-    if (dataStore.every(item => {
-      return mandatoryFields.every(field => field in item);
-    })) {
+    let timer = setTimeout(() => {
       clearInterval(interval);
-      clearTimeout(timer);
-      deferred.resolve();
-    }
-  }, WDA_DEFAULT_VERIFY_INTERVAL);
-
-  let timer = setTimeout(() => {
-    clearInterval(interval);
-    deferred.reject(new Error("Timed out while waiting for data"));
-  }, WDA_DEFAULT_GIVE_UP_TIMEOUT);
-
-  return deferred.promise;
+      reject(new Error("Timed out while waiting for data"));
+    }, WDA_DEFAULT_GIVE_UP_TIMEOUT);
+  });
 }
 
 /**

@@ -53,7 +53,7 @@ add_task(function* () {
     info(`Verifying request #${index}`);
     yield verifyRequestItemTarget(item, request.method, request.uri, request.details);
 
-    let { stacktrace } = item.attachment.cause;
+    let { stacktrace } = item.data.cause;
     let stackLen = stacktrace ? stacktrace.length : 0;
 
     ok(stacktrace, `Request #${index} has a stacktrace`);

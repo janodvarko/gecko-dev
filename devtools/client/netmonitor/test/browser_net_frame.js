@@ -17,7 +17,7 @@ const EXPECTED_REQUESTS_TOP = [
     method: "GET",
     url: TOP_URL,
     causeType: "document",
-    causeUri: "",
+    causeUri: null,
     stack: true
   },
   {
@@ -176,9 +176,8 @@ add_task(function* () {
   for (let i = 0; i < REQUEST_COUNT; i++) {
     let requestItem = RequestsMenu.getItemAtIndex(i);
 
-    let itemUrl = requestItem.attachment.url;
-    let itemCauseUri = requestItem.target.querySelector(".requests-menu-cause-label")
-                                         .getAttribute("tooltiptext");
+    let itemUrl = requestItem.data.url;
+    let itemCauseUri = requestItem.data.cause.loadingDocumentUri;
     let spec;
     if (itemUrl == SUB_URL || itemCauseUri == SUB_URL) {
       spec = EXPECTED_REQUESTS_SUB[currentSub++];
@@ -191,7 +190,7 @@ add_task(function* () {
       method, url, { cause: { type: causeType, loadingDocumentUri: causeUri } }
     );
 
-    let { stacktrace } = requestItem.attachment.cause;
+    let { stacktrace } = requestItem.data.cause;
     let stackLen = stacktrace ? stacktrace.length : 0;
 
     if (stack) {
