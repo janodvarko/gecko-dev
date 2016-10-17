@@ -245,29 +245,27 @@ function waitForNetworkEvents(aMonitor, aGetRequests, aPostRequests = 0) {
  * this should be rewritten - test the rendered markup at unit level, integration
  * mochitest should check only the store state.
  */
-function getItemTarget(requestItem) {
-  const requestsMenu = requestItem.ownerView;
-  const items = requestsMenu.mountPoint.querySelectorAll(".side-menu-widget-item");
-  return Array.prototype.find.call(items, el => el.dataset.id == requestItem.id);
+function getItemTarget(requestList, requestItem) {
+  const items = requestList.mountPoint.querySelectorAll(".side-menu-widget-item");
+  return [...items].find(el => el.dataset.id == requestItem.id);
 }
 
-function verifyRequestItemTarget(aRequestItem, aMethod, aUrl, aData = {}) {
+function verifyRequestItemTarget(requestList, requestItem, aMethod, aUrl, aData = {}) {
   info("> Verifying: " + aMethod + " " + aUrl + " " + aData.toSource());
   // This bloats log sizes significantly in automation (bug 992485)
-  // info("> Request: " + aRequestItem.data.toSource());
+  // info("> Request: " + requestItem.data.toSource());
 
-  let requestsMenu = aRequestItem.ownerView;
-  let widgetIndex = requestsMenu.indexOfItem(aRequestItem);
-  let visibleIndex = requestsMenu.visibleItems.indexOf(aRequestItem);
+  let widgetIndex = requestList.indexOfItem(requestItem);
+  let visibleIndex = requestList.visibleItems.indexOf(requestItem);
 
   info("Widget index of item: " + widgetIndex);
   info("Visible index of item: " + visibleIndex);
 
   let { fuzzyUrl, status, statusText, cause, type, fullMimeType,
         transferred, size, time, displayedStatus } = aData;
-  let { data } = aRequestItem;
+  let { data } = requestItem;
 
-  let target = getItemTarget(aRequestItem);
+  let target = getItemTarget(requestList, requestItem);
 
   let uri = Services.io.newURI(aUrl, null, null).QueryInterface(Ci.nsIURL);
   let unicodeUrl = NetworkHelper.convertToUnicode(unescape(aUrl));

@@ -297,7 +297,7 @@ add_task(function* () {
 
       if (shouldBeVisible) {
         let { method, url, data } = EXPECTED_REQUESTS[i];
-        verifyRequestItemTarget(items[i], method, url, data);
+        verifyRequestItemTarget(RequestsMenu, items[i], method, url, data);
       }
     }
   }

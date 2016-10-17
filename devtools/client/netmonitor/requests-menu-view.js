@@ -198,7 +198,7 @@ RequestsMenuView.prototype = {
     // this.maintainSelectionVisible = true;
 
     const enhancer = applyMiddleware(thunk, stringFetcher);
-    this.store = createStore(reducer(this), enhancer);
+    this.store = createStore(reducer, enhancer);
 
     // Watch selection changes
     this.store.subscribe(storeWatcher(

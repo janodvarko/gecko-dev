@@ -219,7 +219,7 @@ add_task(function* () {
       for (let j = i; j < visibility.length; j += EXPECTED_REQUESTS.length) {
         if (visibility[j]) {
           let item = items[j];
-          verifyRequestItemTarget(item, method, url, data);
+          verifyRequestItemTarget(RequestsMenu, item, method, url, data);
         }
       }
     }

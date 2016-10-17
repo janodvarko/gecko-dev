@@ -141,7 +141,8 @@ add_task(function* () {
     }
 
     for (let i = 0, len = order.length / 5; i < len; i++) {
-      verifyRequestItemTarget(RequestsMenu.getItemAtIndex(order[i]),
+      verifyRequestItemTarget(RequestsMenu,
+        RequestsMenu.getItemAtIndex(order[i]),
         "GET1", SORTING_SJS + "?index=1", {
           fuzzyUrl: true,
           status: 101,
@@ -154,7 +155,8 @@ add_task(function* () {
         });
     }
     for (let i = 0, len = order.length / 5; i < len; i++) {
-      verifyRequestItemTarget(RequestsMenu.getItemAtIndex(order[i + len]),
+      verifyRequestItemTarget(RequestsMenu,
+        RequestsMenu.getItemAtIndex(order[i + len]),
         "GET2", SORTING_SJS + "?index=2", {
           fuzzyUrl: true,
           status: 200,
@@ -167,7 +169,8 @@ add_task(function* () {
         });
     }
     for (let i = 0, len = order.length / 5; i < len; i++) {
-      verifyRequestItemTarget(RequestsMenu.getItemAtIndex(order[i + len * 2]),
+      verifyRequestItemTarget(RequestsMenu,
+        RequestsMenu.getItemAtIndex(order[i + len * 2]),
         "GET3", SORTING_SJS + "?index=3", {
           fuzzyUrl: true,
           status: 300,
@@ -180,7 +183,8 @@ add_task(function* () {
         });
     }
     for (let i = 0, len = order.length / 5; i < len; i++) {
-      verifyRequestItemTarget(RequestsMenu.getItemAtIndex(order[i + len * 3]),
+      verifyRequestItemTarget(RequestsMenu,
+        RequestsMenu.getItemAtIndex(order[i + len * 3]),
         "GET4", SORTING_SJS + "?index=4", {
           fuzzyUrl: true,
           status: 400,
@@ -193,7 +197,8 @@ add_task(function* () {
         });
     }
     for (let i = 0, len = order.length / 5; i < len; i++) {
-      verifyRequestItemTarget(RequestsMenu.getItemAtIndex(order[i + len * 4]),
+      verifyRequestItemTarget(RequestsMenu,
+        RequestsMenu.getItemAtIndex(order[i + len * 4]),
         "GET5", SORTING_SJS + "?index=5", {
           fuzzyUrl: true,
           status: 500,

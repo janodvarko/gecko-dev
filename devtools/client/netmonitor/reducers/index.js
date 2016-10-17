@@ -55,8 +55,7 @@ const initialState = {
   waterfallWidth: 300,
 };
 
-// The ownerView param is a hack to satisfy tests - TODO: make it go away
-const reducer = ownerView => (state = initialState, action) => {
+const reducer = (state = initialState, action) => {
   switch (action.type) {
     case "ADD_REQUEST": {
       let { startedMillis } = action.data;
@@ -76,7 +75,6 @@ const reducer = ownerView => (state = initialState, action) => {
       let newRequest = {
         id: action.id,
         data: Object.assign({}, action.data, { startedDeltaMillis }),
-        ownerView
       };
 
       return Object.assign({}, state, {

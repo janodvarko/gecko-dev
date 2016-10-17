@@ -213,7 +213,7 @@ add_task(function* () {
     is(RequestsMenu.getItemAtIndex(4), RequestsMenu.items[4],
       "The requests menu items aren't ordered correctly. Fifth item is misplaced.");
 
-    verifyRequestItemTarget(RequestsMenu.getItemAtIndex(a),
+    verifyRequestItemTarget(RequestsMenu, RequestsMenu.getItemAtIndex(a),
       "GET1", SORTING_SJS + "?index=1", {
         fuzzyUrl: true,
         status: 101,
@@ -224,7 +224,7 @@ add_task(function* () {
         size: L10N.getFormatStrWithNumbers("networkMenu.sizeB", 0),
         time: true
       });
-    verifyRequestItemTarget(RequestsMenu.getItemAtIndex(b),
+    verifyRequestItemTarget(RequestsMenu, RequestsMenu.getItemAtIndex(b),
       "GET2", SORTING_SJS + "?index=2", {
         fuzzyUrl: true,
         status: 200,
@@ -235,7 +235,7 @@ add_task(function* () {
         size: L10N.getFormatStrWithNumbers("networkMenu.sizeB", 19),
         time: true
       });
-    verifyRequestItemTarget(RequestsMenu.getItemAtIndex(c),
+    verifyRequestItemTarget(RequestsMenu, RequestsMenu.getItemAtIndex(c),
       "GET3", SORTING_SJS + "?index=3", {
         fuzzyUrl: true,
         status: 300,
@@ -246,7 +246,7 @@ add_task(function* () {
         size: L10N.getFormatStrWithNumbers("networkMenu.sizeB", 29),
         time: true
       });
-    verifyRequestItemTarget(RequestsMenu.getItemAtIndex(d),
+    verifyRequestItemTarget(RequestsMenu, RequestsMenu.getItemAtIndex(d),
       "GET4", SORTING_SJS + "?index=4", {
         fuzzyUrl: true,
         status: 400,
@@ -257,7 +257,7 @@ add_task(function* () {
         size: L10N.getFormatStrWithNumbers("networkMenu.sizeB", 39),
         time: true
       });
-    verifyRequestItemTarget(RequestsMenu.getItemAtIndex(e),
+    verifyRequestItemTarget(RequestsMenu, RequestsMenu.getItemAtIndex(e),
       "GET5", SORTING_SJS + "?index=5", {
         fuzzyUrl: true,
         status: 500,

@@ -83,7 +83,7 @@ function test() {
       is(requestItem.data.eventTimings, undefined,
         "The eventTimings should not yet be set.");
 
-      verifyRequestItemTarget(requestItem, "GET", SIMPLE_SJS);
+      verifyRequestItemTarget(RequestsMenu, requestItem, "GET", SIMPLE_SJS);
     });
 
     monitor.panelWin.once(monitor.panelWin.EVENTS.RECEIVED_REQUEST_HEADERS, () => {
@@ -108,7 +108,7 @@ function test() {
       is(requestItem.data.requestCookies.cookies.length, 2,
         "The requestCookies data has an incorrect |cookies| property.");
 
-      verifyRequestItemTarget(requestItem, "GET", SIMPLE_SJS);
+      verifyRequestItemTarget(RequestsMenu, requestItem, "GET", SIMPLE_SJS);
     });
 
     monitor.panelWin.once(monitor.panelWin.EVENTS.RECEIVED_REQUEST_POST_DATA, () => {
@@ -125,7 +125,7 @@ function test() {
       is(requestItem.data.responseHeaders.headersSize, 330,
         "The responseHeaders data has an incorrect |headersSize| property.");
 
-      verifyRequestItemTarget(requestItem, "GET", SIMPLE_SJS);
+      verifyRequestItemTarget(RequestsMenu, requestItem, "GET", SIMPLE_SJS);
     });
 
     monitor.panelWin.once(monitor.panelWin.EVENTS.RECEIVED_RESPONSE_COOKIES, () => {
@@ -136,7 +136,7 @@ function test() {
       is(requestItem.data.responseCookies.cookies.length, 2,
         "The responseCookies data has an incorrect |cookies| property.");
 
-      verifyRequestItemTarget(requestItem, "GET", SIMPLE_SJS);
+      verifyRequestItemTarget(RequestsMenu, requestItem, "GET", SIMPLE_SJS);
     });
 
     monitor.panelWin.once(monitor.panelWin.EVENTS.STARTED_RECEIVING_RESPONSE, () => {
@@ -151,7 +151,7 @@ function test() {
       is(requestItem.data.headersSize, 330,
         "The headersSize data has an incorrect value.");
 
-      verifyRequestItemTarget(requestItem, "GET", SIMPLE_SJS, {
+      verifyRequestItemTarget(RequestsMenu, requestItem, "GET", SIMPLE_SJS, {
         status: "200",
         statusText: "Och Aye"
       });
@@ -167,7 +167,7 @@ function test() {
       is(requestItem.data.mimeType, "text/plain; charset=utf-8",
         "The mimeType data has an incorrect value.");
 
-      verifyRequestItemTarget(requestItem, "GET", SIMPLE_SJS, {
+      verifyRequestItemTarget(RequestsMenu, requestItem, "GET", SIMPLE_SJS, {
         type: "plain",
         fullMimeType: "text/plain; charset=utf-8",
         transferred: L10N.getFormatStrWithNumbers("networkMenu.sizeB", 12),
@@ -190,7 +190,7 @@ function test() {
         12,
         "The responseContent data has an incorrect |content.size| property.");
 
-      verifyRequestItemTarget(requestItem, "GET", SIMPLE_SJS, {
+      verifyRequestItemTarget(RequestsMenu, requestItem, "GET", SIMPLE_SJS, {
         type: "plain",
         fullMimeType: "text/plain; charset=utf-8",
         transferred: L10N.getFormatStrWithNumbers("networkMenu.sizeB", 12),
@@ -211,7 +211,7 @@ function test() {
       ok(requestItem.data.endedMillis >= 0,
         "The attached endedMillis should be positive.");
 
-      verifyRequestItemTarget(requestItem, "GET", SIMPLE_SJS, {
+      verifyRequestItemTarget(RequestsMenu, requestItem, "GET", SIMPLE_SJS, {
         time: true
       });
     });
@@ -236,7 +236,7 @@ function test() {
       is(typeof requestItem.data.eventTimings.totalTime, "number",
         "The eventTimings data has an incorrect |totalTime| property.");
 
-      verifyRequestItemTarget(requestItem, "GET", SIMPLE_SJS, {
+      verifyRequestItemTarget(RequestsMenu, requestItem, "GET", SIMPLE_SJS, {
         time: true
       });
     });

@@ -25,8 +25,10 @@ add_task(function* () {
   let initial = RequestsMenu.items[0];
   let redirect = RequestsMenu.items[1];
 
-  let initialSecurityIcon = $(".requests-security-state-icon", getItemTarget(initial));
-  let redirectSecurityIcon = $(".requests-security-state-icon", getItemTarget(redirect));
+  let initialSecurityIcon =
+    $(".requests-security-state-icon", getItemTarget(RequestsMenu, initial));
+  let redirectSecurityIcon =
+    $(".requests-security-state-icon", getItemTarget(RequestsMenu, redirect));
 
   ok(initialSecurityIcon.classList.contains("security-state-insecure"),
      "Initial request was marked insecure.");

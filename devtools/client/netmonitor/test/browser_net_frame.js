@@ -186,7 +186,7 @@ add_task(function* () {
     }
     let { method, url, causeType, causeUri, stack } = spec;
 
-    verifyRequestItemTarget(requestItem,
+    verifyRequestItemTarget(RequestsMenu, requestItem,
       method, url, { cause: { type: causeType, loadingDocumentUri: causeUri } }
     );
 

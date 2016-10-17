@@ -43,7 +43,7 @@ add_task(function* () {
 
   function* clickAndTestSecurityIcon() {
     let item = RequestsMenu.items[0];
-    let target = getItemTarget(item);
+    let target = getItemTarget(RequestsMenu, item);
     let icon = $(".requests-security-state-icon", target);
 
     info("Clicking security icon of the first request and waiting for panel update.");

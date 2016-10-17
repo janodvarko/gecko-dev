@@ -24,7 +24,7 @@ add_task(function* () {
   yield performRequests();
 
   for (let item of RequestsMenu.items) {
-    let target = getItemTarget(item);
+    let target = getItemTarget(RequestsMenu, item);
     let domain = $(".requests-menu-domain", target).textContent;
 
     info("Found a request to " + domain);
