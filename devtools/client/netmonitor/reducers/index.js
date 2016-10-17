@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 "use strict";
 
+const I = require("devtools/client/shared/vendor/immutable");
 const { getRequestIndexById, getSelectedRequest } = require("../selectors/index");
 const { Filters } = require("../filter-predicates");
 
@@ -35,32 +36,39 @@ const UPDATE_PROPS = [
 // Safe bounds for waterfall width (px)
 const REQUESTS_WATERFALL_SAFE_BOUNDS = 90;
 
-const initialState = {
-  requests: [],
+const Filter = I.Record({
+  enabled: I.List.of("all"),
+  text: "",
+});
+
+const SortBy = I.Record({
+  // null means: sort by "waterfall", but don't highlight the table header
+  type: null,
+  ascending: true,
+});
+
+const AppState = I.Record({
+  requests: I.List(),
   firstRequestStartedMillis: -1,
   lastRequestEndedMillis: -1,
   firstDocumentDOMContentLoadedTimestamp: -1,
   firstDocumentLoadTimestamp: -1,
   selectedItem: null,
   preselectedItem: null,
-  filter: {
-    enabled: [ "all" ],
-    text: "",
-  },
-  sortBy: {
-    // null means: sort by "waterfall", but don't highlight the table header
-    type: null,
-    ascending: true,
-  },
+  filter: new Filter(),
+  sortBy: new SortBy(),
   waterfallWidth: 300,
-};
+});
 
-const reducer = (state = initialState, action) => {
+const reducer = (state = new AppState(), action) => {
   switch (action.type) {
     case "ADD_REQUEST": {
       let { startedMillis } = action.data;
-      let { firstRequestStartedMillis, lastRequestEndedMillis,
-            selectedItem, preselectedItem } = state;
+      let { requests,
+            firstRequestStartedMillis,
+            lastRequestEndedMillis,
+            selectedItem,
+            preselectedItem } = state;
 
       // Update the first/last timestamps
       if (firstRequestStartedMillis == -1) {
@@ -77,12 +85,12 @@ const reducer = (state = initialState, action) => {
         data: Object.assign({}, action.data, { startedDeltaMillis }),
       };
 
-      return Object.assign({}, state, {
-        requests: [ ...state.requests, newRequest ],
-        firstRequestStartedMillis,
-        lastRequestEndedMillis,
-        selectedItem: preselectedItem || selectedItem,
-        preselectedItem: null,
+      return state.withMutations(record => {
+        record.set("requests", requests.push(newRequest));
+        record.set("firstRequestStartedMillis", firstRequestStartedMillis);
+        record.set("lastRequestEndedMillis", lastRequestEndedMillis);
+        record.set("selectedItem", preselectedItem || selectedItem);
+        record.remove("preselectedItem");
       });
     }
 
@@ -135,9 +143,9 @@ const reducer = (state = initialState, action) => {
         return request;
       });
 
-      return Object.assign({}, state, {
-        requests,
-        lastRequestEndedMillis,
+      return state.withMutations(record => {
+        record.set("requests", requests);
+        record.set("lastRequestEndedMillis", lastRequestEndedMillis);
       });
     }
     case "CLONE_REQUEST": {
@@ -146,7 +154,7 @@ const reducer = (state = initialState, action) => {
         return state;
       }
 
-      let clonedRequest = state.requests[clonedIdx];
+      let clonedRequest = state.requests.get(clonedIdx);
       let newRequest = Object.assign({}, clonedRequest, {
         id: clonedRequest.id + "-clone",
         data: {
@@ -161,12 +169,11 @@ const reducer = (state = initialState, action) => {
       // Insert the clone right after the original. This ensures that the requests
       // are always sorted next to each other, even when multiple requests are
       // equal according to the sorting criteria.
-      let newRequests = state.requests.slice();
-      newRequests.splice(clonedIdx + 1, 0, newRequest);
+      let newRequests = state.requests.insert(clonedIdx + 1, newRequest);
 
-      return Object.assign({}, state, {
-        requests: newRequests,
-        selectedItem: newRequest.id,
+      return state.withMutations(record => {
+        record.set("requests", newRequests);
+        record.set("selectedItem", newRequest.id);
       });
     }
     case "REMOVE_SELECTED_CUSTOM_REQUEST": {
@@ -180,44 +187,41 @@ const reducer = (state = initialState, action) => {
         return state;
       }
 
-      return Object.assign({}, state, {
-        requests: state.requests.filter(r => r !== selectedRequest),
-        selectedItem: null,
+      return state.withMutations(record => {
+        record.set("requests", state.requests.filter(r => r !== selectedRequest));
+        record.remove("selectedItem");
       });
     }
     case "CLEAR_REQUESTS": {
-      return Object.assign({}, state, {
-        requests: [],
-        selectedItem: null,
-        firstRequestStartedMillis: -1,
-        lastRequestEndedMillis: -1,
-        firstDocumentDOMContentLoadedTimestamp: -1,
-        firstDocumentLoadTimestamp: -1,
+      return state.withMutations(record => {
+        record.remove("requests");
+        record.remove("selectedItem");
+        record.remove("preselectedItem");
+        record.remove("firstRequestStartedMillis");
+        record.remove("lastRequestEndedMillis");
+        record.remove("firstDocumentDOMContentLoadedTimestamp");
+        record.remove("firstDocumentLoadTimestamp");
       });
     }
     case "ADD_TIMING_MARKER": {
       if (action.marker.name == "document::DOMContentLoaded" &&
           state.firstDocumentDOMContentLoadedTimestamp == -1) {
-        return Object.assign({}, state, {
-          firstDocumentDOMContentLoadedTimestamp: action.marker.unixTime / 1000
-        });
+        return state.set("firstDocumentDOMContentLoadedTimestamp",
+                         action.marker.unixTime / 1000);
       }
       if (action.marker.name == "document::Load" &&
           state.firstDocumentLoadTimestamp == -1) {
-        return Object.assign({}, state, {
-          firstDocumentLoadTimestamp: action.marker.unixTime / 1000
-        });
+        return state.set("firstDocumentLoadTimestamp",
+                         action.marker.unixTime / 1000);
       }
       return state;
     }
     case "SORT_BY": {
       let { type, ascending } = state.sortBy;
-      return Object.assign({}, state, {
-        sortBy: Object.assign({}, state.sortBy, {
-          type: action.sortType,
-          ascending: type == action.sortType ? !ascending : true
-        })
-      });
+      let newSortBy = state.sortBy
+        .set("type", action.sortType)
+        .set("ascending", type == action.sortType ? !ascending : true);
+      return state.set("sortBy", newSortBy);
     }
     case "FILTER_ON": {
       // Ignore unknown filters
@@ -227,21 +231,18 @@ const reducer = (state = initialState, action) => {
 
       let { enabled } = state.filter;
       let newEnabled;
-
       if (action.filterType == "all") {
-        newEnabled = ["all"];
+        newEnabled = I.List.of("all");
       } else if (enabled.includes(action.filterType)) {
         newEnabled = enabled.filter(f => f !== action.filterType);
-        if (newEnabled.length == 0) {
-          newEnabled = ["all"];
+        if (newEnabled.isEmpty()) {
+          newEnabled = I.List.of("all");
         }
       } else {
-        newEnabled = [...enabled.filter(f => f !== "all"), action.filterType];
+        newEnabled = enabled.filter(f => f !== "all").push(action.filterType);
       }
 
-      return Object.assign({}, state, {
-        filter: Object.assign({}, state.filter, { enabled: newEnabled })
-      });
+      return state.setIn(["filter", "enabled"], newEnabled);
     }
     case "FILTER_ONLY_ON": {
       // Ignore unknown filters
@@ -249,29 +250,19 @@ const reducer = (state = initialState, action) => {
         return state;
       }
 
-      return Object.assign({}, state, {
-        filter: Object.assign({}, state.filter, { enabled: [ action.filterType ] })
-      });
+      return state.setIn(["filter", "enabled"], I.List.of(action.filterType));
     }
     case "FILTER_FREETEXT": {
-      return Object.assign({}, state, {
-        filter: Object.assign({}, state.filter, { text: action.text })
-      });
+      return state.setIn(["filter", "text"], action.text);
     }
     case "PRESELECT_ITEM": {
-      return Object.assign({}, state, {
-        preselectedItem: action.id
-      });
+      return state.set("preselectedItem", action.id);
     }
     case "SELECT_ITEM": {
-      return Object.assign({}, state, {
-        selectedItem: action.id
-      });
+      return state.set("selectedItem", action.id);
     }
     case "WATERFALL_RESIZE": {
-      return Object.assign({}, state, {
-        waterfallWidth: action.width - REQUESTS_WATERFALL_SAFE_BOUNDS
-      });
+      return state.set("waterfallWidth", action.width - REQUESTS_WATERFALL_SAFE_BOUNDS);
     }
     default:
       return state;

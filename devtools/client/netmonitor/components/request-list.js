@@ -10,7 +10,7 @@ const {formDataURI} = require("../request-utils");
 const {WEBCONSOLE_L10N} = require("../l10n");
 const {HTMLTooltip} = require("devtools/client/shared/widgets/tooltip/HTMLTooltip");
 const {setImageTooltip, getImageDimensions} = require("devtools/client/shared/widgets/tooltip/ImageTooltipHelper");
-const {getRequestById} = require("../selectors/index");
+const {getDisplayedRequests, getRequestById, getWaterfallScale} = require("../selectors/index");
 
 // tooltip show/hide delay in ms
 const REQUESTS_TOOLTIP_TOGGLE_DELAY = 500;
@@ -163,7 +163,7 @@ const RequestListContent = createFactory(createClass({
     if (!itemId) {
       return false;
     }
-    let requestItem = getRequestById(this.props, itemId);
+    let requestItem = getRequestById(this.props.state, itemId);
     if (!requestItem) {
       return false;
     }
@@ -186,13 +186,14 @@ const RequestListContent = createFactory(createClass({
   },
 
   render() {
-    const { requests,
-            selectedItem,
-            scale,
+    const { state,
             onKeyDown,
             onItemMouseDown,
             onItemContextMenu,
             onSecurityIconClick } = this.props;
+    const { selectedItem } = state;
+    const displayedRequests = getDisplayedRequests(state);
+    const scale = getWaterfallScale(state);
 
     return dom.div(
       {
@@ -201,7 +202,7 @@ const RequestListContent = createFactory(createClass({
         tabIndex: 0,
         onKeyDown,
       },
-      requests.map((item, index) => RequestListItem({
+      displayedRequests.map((item, index) => RequestListItem({
         key: item.id,
         item,
         index,
@@ -215,14 +216,12 @@ const RequestListContent = createFactory(createClass({
   },
 }));
 
-const RequestList = createClass({
-  render() {
-    let children = this.props.isEmpty
-      ? [ RequestListEmptyNotice(this.props) ]
-      : [ RequestListHeader(this.props), RequestListContent(this.props) ];
+const RequestList = function (props) {
+  let children = props.state.requests.isEmpty()
+    ? [ RequestListEmptyNotice(props) ]
+    : [ RequestListHeader(props), RequestListContent(props) ];
 
-    return dom.div({ className: "requests-menu-container" }, children);
-  }
-});
+  return dom.div({ className: "requests-menu-container" }, children);
+};
 
 module.exports = RequestList;

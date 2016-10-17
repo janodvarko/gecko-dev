@@ -4,6 +4,7 @@
 
 const { DOM: dom, createClass } = require("devtools/client/shared/vendor/react");
 const { L10N } = require("../l10n");
+const { getWaterfallScale } = require("../selectors/index");
 const { drawWaterfallBackground } = require("../waterfall-background");
 
 // ms
@@ -27,12 +28,12 @@ const HEADERS = [
 
 const RequestListHeader = createClass({
   componentDidMount() {
-    this.background = drawWaterfallBackground(this.props);
+    this.background = drawWaterfallBackground(this.props.state);
     document.mozSetImageElement("waterfall-background", this.background.canvas);
   },
 
   componentDidUpdate() {
-    drawWaterfallBackground(this.props, this.background);
+    drawWaterfallBackground(this.props.state, this.background);
   },
 
   componentWillUnmount() {
@@ -40,7 +41,9 @@ const RequestListHeader = createClass({
   },
 
   render() {
-    const { sortBy, waterfallWidth, scale } = this.props;
+    const { state, onHeaderClick } = this.props;
+    const { sortBy, waterfallWidth } = state;
+    const scale = getWaterfallScale(state);
 
     return dom.div(
       { id: "requests-menu-toolbar", className: "devtools-toolbar" },
@@ -73,7 +76,7 @@ const RequestListHeader = createClass({
                 className: `requests-menu-header-button requests-menu-${name}`,
                 "data-sorted": sorted,
                 title: sortedTitle,
-                onClick: () => this.props.onHeaderClick(name),
+                onClick: () => onHeaderClick(name),
               },
               name == "waterfall" ? WaterfallLabel(waterfallWidth, scale, label) : label,
               dom.div({ className: "button-icon" })

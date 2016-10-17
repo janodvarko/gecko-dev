@@ -29,7 +29,7 @@ add_task(function* () {
       newValue: ["html", "css"],
       // Getter used to retrieve the current value from the frontend, in order
       // to verify that the pref was applied properly.
-      validateValue: ($) => getActiveFilters(getState()),
+      validateValue: ($) => getActiveFilters(getState()).toJS(),
       // Predicate used to modify the frontend when setting the new pref value,
       // before trying to validate the changes.
       modifyFrontend: ($, value) => value.forEach(e => getView().RequestsMenu.filterOn(e))

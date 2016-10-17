@@ -52,7 +52,7 @@ function getSorter(state) {
 function getSortedRequests(state) {
   const { requests } = state;
   const sortFn = getSorter(state);
-  return requests.slice().sort(sortFn);
+  return requests.sort(sortFn);
 }
 
 function getDisplayedRequests(state) {
@@ -65,7 +65,7 @@ function getDisplayedRequests(state) {
 function getDisplayedRequestsSummary(state) {
   const requests = getDisplayedRequests(state);
 
-  if (requests.length == 0) {
+  if (requests.size == 0) {
     return { count: 0, bytes: 0, millis: 0 };
   }
 
@@ -80,7 +80,7 @@ function getDisplayedRequestsSummary(state) {
     (prev, curr) => prev.data.startedMillis > curr.data.startedMillis ? prev : curr);
 
   return {
-    count: requests.length,
+    count: requests.size,
     bytes: totalBytes,
     millis: newestRequest.data.endedMillis - oldestRequest.data.startedMillis,
   };
@@ -114,6 +114,13 @@ function getActiveFilters(state) {
   return state.filter.enabled;
 }
 
+const EPSILON = 0.001;
+
+function getWaterfallScale(state) {
+  let longestWidth = state.lastRequestEndedMillis - state.firstRequestStartedMillis;
+  return Math.min(Math.max(state.waterfallWidth / longestWidth, EPSILON), 1);
+}
+
 exports.getSortedRequests = getSortedRequests;
 exports.getDisplayedRequests = getDisplayedRequests;
 exports.getDisplayedRequestsSummary = getDisplayedRequestsSummary;
@@ -122,3 +129,4 @@ exports.getRequestIndexById = getRequestIndexById;
 exports.getSelectedRequest = getSelectedRequest;
 exports.getSelectedRequestIndex = getSelectedRequestIndex;
 exports.getActiveFilters = getActiveFilters;
+exports.getWaterfallScale = getWaterfallScale;

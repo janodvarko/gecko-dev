@@ -107,7 +107,7 @@ exports.selectDelta = (delta) => {
   return (dispatch, getState) => {
     const state = getState();
     const requests = getDisplayedRequests(state);
-    const itemCount = requests.length;
+    const itemCount = requests.size;
     const selIndex = state.selectedItem
       ? requests.findIndex(r => r.id == state.selectedItem)
       : -1;
@@ -119,7 +119,7 @@ exports.selectDelta = (delta) => {
     }
 
     const newIndex = Math.min(Math.max(0, selIndex + delta), itemCount - 1);
-    const newItem = requests[newIndex];
+    const newItem = requests.get(newIndex);
     dispatch(exports.selectItem(newItem ? newItem.id : null));
   };
 };

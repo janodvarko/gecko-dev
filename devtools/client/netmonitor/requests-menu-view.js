@@ -43,7 +43,6 @@ loader.lazyRequireGetter(this, "HarExporter",
 loader.lazyRequireGetter(this, "NetworkHelper",
   "devtools/shared/webconsole/network-helper");
 
-const EPSILON = 0.001;
 // ms
 const RESIZE_REFRESH_RATE = 50;
 // ms
@@ -56,15 +55,7 @@ const CONTENT_SIZE_DECIMALS = 2;
 const FREETEXT_FILTER_SEARCH_DELAY = 200;
 
 function mapStateToProps(state) {
-  const { firstRequestStartedMillis, lastRequestEndedMillis, waterfallWidth } = state;
-  let longestWidth = lastRequestEndedMillis - firstRequestStartedMillis;
-  let scale = Math.min(Math.max(waterfallWidth / longestWidth, EPSILON), 1);
-
-  return Object.assign({}, state, {
-    isEmpty: state.requests.length == 0,
-    scale,
-    requests: getDisplayedRequests(state),
-  });
+  return { state };
 }
 
 function mapDispatchToProps(dispatch) {
@@ -218,7 +209,7 @@ RequestsMenuView.prototype = {
     // Watch request count - disable sidebar when the list is empty
     this.store.subscribe(storeWatcher(
       0,
-      () => this.store.getState().requests.length,
+      () => this.store.getState().requests.size,
       count => this._onCountUpdate(count)
     ));
 
@@ -341,7 +332,7 @@ RequestsMenuView.prototype = {
   destroy() {
     dumpn("Destroying the RequestsMenuView");
 
-    Prefs.filters = this.store.getState().filter.enabled;
+    Prefs.filters = this.store.getState().filter.enabled.toJS();
 
     this.flushRequestsTask.disarm();
     this.userInputTimer.cancel();
@@ -514,19 +505,19 @@ RequestsMenuView.prototype = {
   },
 
   get items() {
-    return getSortedRequests(this.store.getState());
+    return getSortedRequests(this.store.getState()).toJS();
   },
 
   get visibleItems() {
-    return getDisplayedRequests(this.store.getState());
+    return getDisplayedRequests(this.store.getState()).toJS();
   },
 
   get itemCount() {
-    return this.store.getState().requests.length;
+    return this.store.getState().requests.size;
   },
 
   getItemAtIndex(index) {
-    return getSortedRequests(this.store.getState())[index];
+    return getSortedRequests(this.store.getState()).get(index);
   },
 
   indexOfItem(item) {
@@ -543,7 +534,11 @@ RequestsMenuView.prototype = {
 
   set selectedIndex(index) {
     const requests = getSortedRequests(this.store.getState());
-    this.selectedItem = requests[index];
+    if (index >= 0 && index < requests.size) {
+      this.selectedItem = requests.get(index);
+    } else {
+      this.selectedItem = null;
+    }
   },
 
   get selectedItem() {
@@ -920,10 +915,10 @@ RequestsMenuView.prototype = {
     });
 
     let copyAsHar = $("#request-menu-context-copy-all-as-har");
-    copyAsHar.hidden = !NetMonitorView.RequestsMenu.items.length;
+    copyAsHar.hidden = !NetMonitorView.RequestsMenu.itemCount;
 
     let saveAsHar = $("#request-menu-context-save-all-as-har");
-    saveAsHar.hidden = !NetMonitorView.RequestsMenu.items.length;
+    saveAsHar.hidden = !NetMonitorView.RequestsMenu.itemCount;
 
     let newTabElement = $("#request-menu-context-newtab");
     newTabElement.hidden = !selectedItem;

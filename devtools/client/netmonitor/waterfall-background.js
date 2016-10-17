@@ -2,6 +2,8 @@
 
 "use strict";
 
+const { getWaterfallScale } = require("./selectors/index");
+
 const HTML_NS = "http://www.w3.org/1999/xhtml";
 // ms
 const REQUESTS_WATERFALL_BACKGROUND_TICKS_MULTIPLE = 5;
@@ -18,12 +20,12 @@ const REQUESTS_WATERFALL_LOAD_TICKS_COLOR_RGBA = [0, 0, 255, 128];
 /**
  * Creates the background displayed on each waterfall view in this container.
  */
-function drawWaterfallBackground(props, existingBackground) {
+function drawWaterfallBackground(state, existingBackground) {
   const { waterfallWidth,
-          scale,
           firstRequestStartedMillis,
           firstDocumentDOMContentLoadedTimestamp,
-          firstDocumentLoadTimestamp } = props;
+          firstDocumentLoadTimestamp } = state;
+  const scale = getWaterfallScale(state);
 
   let canvas, ctx;
   if (existingBackground) {
