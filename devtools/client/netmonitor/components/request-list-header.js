@@ -51,8 +51,7 @@ const RequestListHeader = createClass({
         HEADERS.map(header => {
           const name = header.name;
           const boxName = header.boxName || name;
-          const label = header.label || name;
-          // netmonitorUI.toolbar.${label}
+          const label = L10N.getStr(`netmonitor.toolbar.${header.label || name}`);
 
           let sorted, sortedTitle;
           const active = sortBy.type == name ? true : undefined;

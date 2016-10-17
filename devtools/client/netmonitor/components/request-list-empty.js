@@ -1,6 +1,7 @@
 "use strict";
 
 const { DOM: dom } = require("devtools/client/shared/vendor/react");
+const { L10N } = require("../l10n");
 
 function RequestListEmptyNotice(props) {
   return dom.div(
@@ -9,26 +10,26 @@ function RequestListEmptyNotice(props) {
       className: "side-menu-widget-empty-text",
     },
     dom.div({ id: "notice-reload-message" },
-      dom.span({}, "netmonitorUI.reloadNotice1"),
+      dom.span(null, L10N.getStr("netmonitor.reloadNotice1")),
       dom.button(
         {
           id: "requests-menu-reload-notice-button",
           className: "devtools-toolbarbutton",
           onClick: props.onReloadClick,
         },
-        "netmonitorUI.reloadNotice2"
+        L10N.getStr("netmonitor.reloadNotice2")
       ),
-      dom.span({}, "netmonitorUI.reloadNotice3")
+      dom.span(null, L10N.getStr("netmonitor.reloadNotice3"))
     ),
     dom.div({ id: "notice-perf-message" },
-      dom.span({}, "netmonitorUI.perfNotice1"),
+      dom.span(null, L10N.getStr("netmonitor.perfNotice1")),
       dom.button({
         id: "requests-menu-perf-notice-button",
-        title: "netmonitorUI.perfNotice3",
+        title: L10N.getStr("netmonitor.perfNotice3"),
         className: "devtools-toolbarbutton",
         onClick: props.onPerfClick,
       }),
-      dom.span({}, "netmonitorUI.perfNotice2")
+      dom.span(null, L10N.getStr("netmonitor.perfNotice2"))
     )
   );
 }
